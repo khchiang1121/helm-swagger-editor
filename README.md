@@ -43,6 +43,33 @@ swaggerEditor:
 
 Other standard Helm values (replicaCount, resources, ingress, etc.) are also supported.
 
+## Istio Gateway and VirtualService
+
+This chart supports exposing Swagger Editor via Istio Gateway and VirtualService. To enable, set `istio.enabled: true` in your `values.yaml`:
+
+```yaml
+istio:
+  enabled: true
+  gateway:
+    name: "swagger-editor-gateway"
+    selector:
+      istio: ingressgateway
+    hosts:
+      - "swagger-editor.local"
+    port: 80
+    tls: false
+    # tlsSecret: ""
+  virtualService:
+    hosts:
+      - "swagger-editor.local"
+    gateways:
+      - "swagger-editor-gateway"
+    path: "/"
+    rewrite: "/"
+```
+
+This will create an Istio Gateway and VirtualService to expose the editor outside the cluster. Adjust the hosts and selectors as needed for your environment.
+
 ## Upgrading
 
 To upgrade the chart after changing values:

@@ -1,0 +1,24 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: {{ .Values.istio.gateway.name | quote }}
+  namespace: {{- if .Values.istio.gateway.namespace }}{{ .Values.istio.gateway.namespace | quote }}{{- else }}{{ .Release.Namespace | quote }}{{- end }}
+  labels:
+    {{- include "swagger-editor.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- toYaml .Values.istio.gateway.selector | nindent 4 }}
+  servers:
+    - port:
+        number: {{ .Values.istio.gateway.port }}
+        name: http
+        protocol: HTTP
+      hosts:
+        {{- toYaml .Values.istio.gateway.hosts | nindent 8 }}
+      {{- if .Values.istio.gateway.tls }}
+      tls:
+        mode: SIMPLE
+        credentialName: {{ .Values.istio.gateway.tlsSecret | quote }}
+      {{- end }}
+{{- end }} 

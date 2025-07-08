@@ -138,3 +138,23 @@ swaggerEditor:
   urlSwagger2Generator: "https://generator.swagger.io/api/swagger.json"
   urlOas3Generator: "https://generator3.swagger.io/openapi.json"
   urlSwagger2Converter: "https://converter.swagger.io/api/convert"
+
+istio:
+  enabled: false
+  gateway:
+    name: "swagger-editor-gateway"
+    namespace: ""
+    selector:
+      istio: ingressgateway
+    hosts:
+      - "swagger-editor.local"
+    port: 80
+    tls: false
+    # tlsSecret: ""
+  virtualService:
+    hosts:
+      - "swagger-editor.local"
+    gateways:
+      - "swagger-editor-gateway"
+    path: "/"
+    rewrite: "/"
