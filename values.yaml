@@ -150,7 +150,12 @@ istio:
       - "swagger-editor.local"
     port: 80
     tls: false
-    # tlsSecret: ""
+    # tlsSecret: "swagger-editor-cert"
+    certManager:
+      enabled: false
+      # certificateName: "swagger-editor-cert"
+      # issuerName: "letsencrypt-prod"
+      # issuerKind: "ClusterIssuer"
   virtualService:
     hosts:
       - "swagger-editor.local"

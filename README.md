@@ -70,6 +70,26 @@ istio:
 
 This will create an Istio Gateway and VirtualService to expose the editor outside the cluster. Adjust the hosts and selectors as needed for your environment.
 
+### Cert-Manager Integration for Istio Gateway TLS
+
+If you want to use cert-manager to automatically provision TLS certificates for your Istio Gateway, set the following in your `values.yaml`:
+
+```yaml
+istio:
+  gateway:
+    tls: true
+    tlsSecret: "swagger-editor-cert" # This should match the secretName in the Certificate
+    certManager:
+      enabled: true
+      certificateName: "swagger-editor-cert"
+      issuerName: "letsencrypt-prod"
+      issuerKind: "ClusterIssuer"
+```
+
+When both `tls` and `certManager.enabled` are true, a cert-manager `Certificate` resource will be created for your Gateway hosts. The resulting secret will be referenced by the Gateway for TLS termination.
+
+You can customize the certificate name, issuer, and kind as needed for your environment.
+
 ## Upgrading
 
 To upgrade the chart after changing values:

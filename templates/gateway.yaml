@@ -12,8 +12,8 @@ spec:
   servers:
     - port:
         number: {{ .Values.istio.gateway.port }}
-        name: http
-        protocol: HTTP
+        name: {{ if .Values.istio.gateway.tls }}https{{ else }}http{{ end }}
+        protocol: {{ if .Values.istio.gateway.tls }}HTTPS{{ else }}HTTP{{ end }}
       hosts:
         {{- toYaml .Values.istio.gateway.hosts | nindent 8 }}
       {{- if .Values.istio.gateway.tls }}
