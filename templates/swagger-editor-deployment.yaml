@@ -5,21 +5,21 @@ metadata:
   labels:
     {{- include "swagger-editor.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  {{- if not .Values.swaggerEditor.autoscaling.enabled }}
+  replicas: {{ .Values.swaggerEditor.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
       {{- include "swagger-editor.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
+      {{- with .Values.swaggerEditor.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
         {{- include "swagger-editor.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
+        {{- with .Values.swaggerEditor.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
@@ -28,21 +28,21 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "swagger-editor.serviceAccountName" . }}
-      {{- with .Values.podSecurityContext }}
+      {{- with .Values.swaggerEditor.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
-          {{- with .Values.securityContext }}
+          {{- with .Values.swaggerEditor.securityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.swaggerEditor.image.repository }}:{{ .Values.swaggerEditor.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.swaggerEditor.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.swaggerEditor.service.port }}
               protocol: TCP
           env:
             {{- if .Values.swaggerEditor.url }}
@@ -65,47 +65,41 @@ spec:
             - name: GTM
               value: "{{ .Values.swaggerEditor.gtm }}"
             {{- end }}
-            {{- if .Values.swaggerEditor.urlSwagger2Generator }}
             - name: URL_SWAGGER2_GENERATOR
-              value: "{{ .Values.swaggerEditor.urlSwagger2Generator }}"
-            {{- end }}
-            {{- if .Values.swaggerEditor.urlOas3Generator }}
+              value: {{ if .Values.openapiGenerator.useLocal }}"http://{{ include "swagger-editor.fullname" . }}-openapi-generator:{{ .Values.openapiGenerator.service.port }}/api/swagger.json"{{ else }}"{{ .Values.swaggerEditor.urlSwagger2Generator }}"{{ end }}
             - name: URL_OAS3_GENERATOR
-              value: "{{ .Values.swaggerEditor.urlOas3Generator }}"
-            {{- end }}
-            {{- if .Values.swaggerEditor.urlSwagger2Converter }}
+              value: {{ if .Values.openapiGenerator.useLocal }}"http://{{ include "swagger-editor.fullname" . }}-openapi-generator:{{ .Values.openapiGenerator.service.port }}/openapi.json"{{ else }}"{{ .Values.swaggerEditor.urlOas3Generator }}"{{ end }}
             - name: URL_SWAGGER2_CONVERTER
-              value: "{{ .Values.swaggerEditor.urlSwagger2Converter }}"
-            {{- end }}
-          {{- with .Values.livenessProbe }}
+              value: {{ if .Values.openapiGenerator.useLocal }}"http://{{ include "swagger-editor.fullname" . }}-openapi-generator:{{ .Values.openapiGenerator.service.port }}/api/convert"{{ else }}"{{ .Values.swaggerEditor.urlSwagger2Converter }}"{{ end }}
+          {{- with .Values.swaggerEditor.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.readinessProbe }}
+          {{- with .Values.swaggerEditor.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.resources }}
+          {{- with .Values.swaggerEditor.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
+          {{- with .Values.swaggerEditor.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.volumes }}
+      {{- with .Values.swaggerEditor.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.nodeSelector }}
+      {{- with .Values.swaggerEditor.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- with .Values.swaggerEditor.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with .Values.swaggerEditor.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

@@ -90,6 +90,18 @@ When both `tls` and `certManager.enabled` are true, a cert-manager `Certificate`
 
 You can customize the certificate name, issuer, and kind as needed for your environment.
 
+## Local OpenAPI Generator Server
+
+You can run a local [openapi-generator-online](https://hub.docker.com/r/openapitools/openapi-generator-online) server alongside Swagger Editor for offline or private code generation. To enable, set in your `values.yaml`:
+
+```yaml
+openapiGenerator:
+  enabled: true
+  useLocal: true
+```
+
+This will deploy the openapi-generator-online server and automatically configure Swagger Editor to use it for code generation and conversion. You can customize the image, service type, and port as needed.
+
 ## Upgrading
 
 To upgrade the chart after changing values:

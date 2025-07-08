@@ -1,21 +1,21 @@
-{{- if .Values.swaggerEditor.ingress.enabled -}}
+{{- if .Values.openapiGenerator.ingress.enabled -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "swagger-editor.fullname" . }}
+  name: {{ include "swagger-editor.fullname" . }}-openapi-generator
   labels:
-    {{- include "swagger-editor.labels" . | nindent 4 }}
-  {{- with .Values.swaggerEditor.ingress.annotations }}
+    {{- include "openapi-generator.labels" . | nindent 4 }}
+  {{- with .Values.openapiGenerator.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- with .Values.swaggerEditor.ingress.className }}
+  {{- with .Values.openapiGenerator.ingress.className }}
   ingressClassName: {{ . }}
   {{- end }}
-  {{- if .Values.swaggerEditor.ingress.tls }}
+  {{- if .Values.openapiGenerator.ingress.tls }}
   tls:
-    {{- range .Values.swaggerEditor.ingress.tls }}
+    {{- range .Values.openapiGenerator.ingress.tls }}
     - hosts:
         {{- range .hosts }}
         - {{ . | quote }}
@@ -24,7 +24,7 @@ spec:
     {{- end }}
   {{- end }}
   rules:
-    {{- range .Values.swaggerEditor.ingress.hosts }}
+    {{- range .Values.openapiGenerator.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
@@ -35,9 +35,9 @@ spec:
             {{- end }}
             backend:
               service:
-                name: {{ include "swagger-editor.fullname" $ }}
+                name: {{ include "swagger-editor.fullname" $ }}-openapi-generator
                 port:
-                  number: {{ $.Values.swaggerEditor.service.port }}
+                  number: {{ $.Values.openapiGenerator.service.port }}
           {{- end }}
     {{- end }}
-{{- end }}
+{{- end }} 

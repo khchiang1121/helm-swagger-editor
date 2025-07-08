@@ -1,0 +1,25 @@
+{{- if .Values.swaggerEditor.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "swagger-editor.fullname" . }}-vs
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "swagger-editor.labels" . | nindent 4 }}
+spec:
+  hosts:
+    {{- toYaml .Values.swaggerEditor.istio.virtualService.hosts | nindent 4 }}
+  gateways:
+    {{- toYaml .Values.swaggerEditor.istio.virtualService.gateways | nindent 4 }}
+  http:
+    - match:
+        - uri:
+            prefix: {{ .Values.swaggerEditor.istio.virtualService.path | quote }}
+      rewrite:
+        uri: {{ .Values.swaggerEditor.istio.virtualService.rewrite | quote }}
+      route:
+        - destination:
+            host: {{ include "swagger-editor.fullname" . }}
+            port:
+              number: {{ .Values.swaggerEditor.service.port }}
+{{- end }} 

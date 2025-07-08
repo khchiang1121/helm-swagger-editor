@@ -1,0 +1,10 @@
+{
+    "yaml.validate": false,
+    "[yaml]": {
+      "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+    "files.exclude": {
+      "**/charts": true
+    }
+  }
+  

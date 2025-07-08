@@ -1,0 +1,18 @@
+{{- if .Values.openapiGenerator.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "swagger-editor.fullname" . }}-openapi-generator
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "openapi-generator.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.openapiGenerator.service.type }}
+  ports:
+    - port: {{ .Values.openapiGenerator.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "openapi-generator.selectorLabels" . | nindent 4 }}
+{{- end }} 

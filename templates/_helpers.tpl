@@ -51,6 +51,22 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+OpenAPI Generator component labels
+*/}}
+{{- define "openapi-generator.labels" -}}
+{{- include "swagger-editor.labels" . }}
+app.kubernetes.io/component: openapi-generator
+{{- end }}
+
+{{/*
+OpenAPI Generator selector labels
+*/}}
+{{- define "openapi-generator.selectorLabels" -}}
+{{- include "swagger-editor.selectorLabels" . }}
+app.kubernetes.io/component: openapi-generator
+{{- end }}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "swagger-editor.serviceAccountName" -}}

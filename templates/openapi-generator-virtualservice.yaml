@@ -1,0 +1,25 @@
+{{- if .Values.openapiGenerator.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "swagger-editor.fullname" . }}-openapi-generator-vs
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "openapi-generator.labels" . | nindent 4 }}
+spec:
+  hosts:
+    {{- toYaml .Values.openapiGenerator.istio.virtualService.hosts | nindent 4 }}
+  gateways:
+    {{- toYaml .Values.openapiGenerator.istio.virtualService.gateways | nindent 4 }}
+  http:
+    - match:
+        - uri:
+            prefix: {{ .Values.openapiGenerator.istio.virtualService.path | quote }}
+      rewrite:
+        uri: {{ .Values.openapiGenerator.istio.virtualService.rewrite | quote }}
+      route:
+        - destination:
+            host: {{ include "swagger-editor.fullname" . }}-openapi-generator
+            port:
+              number: {{ .Values.openapiGenerator.service.port }}
+{{- end }} 

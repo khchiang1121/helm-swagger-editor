@@ -1,0 +1,16 @@
+{{- if and .Values.swaggerEditor.istio.gateway.tls .Values.swaggerEditor.istio.gateway.certManager.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.swaggerEditor.istio.gateway.certManager.certificateName | default (printf "%s-swagger-editor-cert" (include "swagger-editor.fullname" .)) | quote }}
+  namespace: {{ if .Values.swaggerEditor.istio.gateway.certManager.namespace }}{{ .Values.swaggerEditor.istio.gateway.certManager.namespace | quote }}{{ else if .Values.swaggerEditor.istio.gateway.namespace }}{{ .Values.swaggerEditor.istio.gateway.namespace | quote }}{{ else }}{{ .Release.Namespace | quote }}{{ end }}
+spec:
+  secretName: {{ .Values.swaggerEditor.istio.gateway.tlsSecret | default .Values.swaggerEditor.istio.gateway.certManager.certificateName | default (printf "%s-swagger-editor-cert" (include "swagger-editor.fullname" .)) | quote }}
+  issuerRef:
+    name: {{ .Values.swaggerEditor.istio.gateway.certManager.issuerName | default "letsencrypt-prod" | quote }}
+    kind: {{ .Values.swaggerEditor.istio.gateway.certManager.issuerKind | default "ClusterIssuer" | quote }}
+  dnsNames:
+    {{- range .Values.swaggerEditor.istio.gateway.hosts }}
+    - {{ . | quote }}
+    {{- end }}
+{{- end }} 

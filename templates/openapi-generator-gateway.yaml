@@ -1,0 +1,24 @@
+{{- if .Values.openapiGenerator.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: {{ .Values.openapiGenerator.istio.gateway.name | quote }}
+  namespace: {{ if .Values.openapiGenerator.istio.gateway.namespace }}{{ .Values.openapiGenerator.istio.gateway.namespace | quote }}{{ else }}{{ .Release.Namespace | quote }}{{ end }}
+  labels:
+    {{- include "openapi-generator.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- toYaml .Values.openapiGenerator.istio.gateway.selector | nindent 4 }}
+  servers:
+    - port:
+        number: {{ .Values.openapiGenerator.istio.gateway.port }}
+        name: {{ if .Values.openapiGenerator.istio.gateway.tls }}https{{ else }}http{{ end }}
+        protocol: {{ if .Values.openapiGenerator.istio.gateway.tls }}HTTPS{{ else }}HTTP{{ end }}
+      hosts:
+        {{- toYaml .Values.openapiGenerator.istio.gateway.hosts | nindent 8 }}
+      {{- if .Values.openapiGenerator.istio.gateway.tls }}
+      tls:
+        mode: SIMPLE
+        credentialName: {{ .Values.openapiGenerator.istio.gateway.tlsSecret | default (printf "%s-openapi-generator-cert" (include "swagger-editor.fullname" .)) | quote }}
+      {{- end }}
+{{- end }} 
