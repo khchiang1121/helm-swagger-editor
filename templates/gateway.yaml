@@ -3,7 +3,7 @@ apiVersion: networking.istio.io/v1beta1
 kind: Gateway
 metadata:
   name: {{ .Values.istio.gateway.name | quote }}
-  namespace: {{- if .Values.istio.gateway.namespace }}{{ .Values.istio.gateway.namespace | quote }}{{- else }}{{ .Release.Namespace | quote }}{{- end }}
+  namespace: {{ if .Values.istio.gateway.namespace }}{{ .Values.istio.gateway.namespace | quote }}{{ else }}{{ .Release.Namespace | quote }}{{ end }}
   labels:
     {{- include "swagger-editor.labels" . | nindent 4 }}
 spec:
