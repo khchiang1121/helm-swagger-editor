@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "swagger-editor.fullname" . }}
+  labels:
+    {{- include "swagger-editor.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "swagger-editor.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "swagger-editor.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "swagger-editor.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          env:
+            {{- if .Values.swaggerEditor.url }}
+            - name: URL
+              value: "{{ .Values.swaggerEditor.url }}"
+            {{- end }}
+            {{- if .Values.swaggerEditor.swaggerFile }}
+            - name: SWAGGER_FILE
+              value: "{{ .Values.swaggerEditor.swaggerFile }}"
+            {{- end }}
+            {{- if .Values.swaggerEditor.baseUrl }}
+            - name: BASE_URL
+              value: "{{ .Values.swaggerEditor.baseUrl }}"
+            {{- end }}
+            {{- if .Values.swaggerEditor.port }}
+            - name: PORT
+              value: "{{ .Values.swaggerEditor.port }}"
+            {{- end }}
+            {{- if .Values.swaggerEditor.gtm }}
+            - name: GTM
+              value: "{{ .Values.swaggerEditor.gtm }}"
+            {{- end }}
+            {{- if .Values.swaggerEditor.urlSwagger2Generator }}
+            - name: URL_SWAGGER2_GENERATOR
+              value: "{{ .Values.swaggerEditor.urlSwagger2Generator }}"
+            {{- end }}
+            {{- if .Values.swaggerEditor.urlOas3Generator }}
+            - name: URL_OAS3_GENERATOR
+              value: "{{ .Values.swaggerEditor.urlOas3Generator }}"
+            {{- end }}
+            {{- if .Values.swaggerEditor.urlSwagger2Converter }}
+            - name: URL_SWAGGER2_CONVERTER
+              value: "{{ .Values.swaggerEditor.urlSwagger2Converter }}"
+            {{- end }}
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
