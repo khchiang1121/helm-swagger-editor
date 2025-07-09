@@ -2,7 +2,7 @@
 set -e
 
 # === Config ===
-CLUSTER_NAME="istio-cluster"
+CLUSTER_NAME="my-cluster"
 HOST_HTTPS_PORT=9443
 HOST_HTTP_PORT=9080
 NODEPORT_HTTP=30080
@@ -13,14 +13,7 @@ ISTIO_PROFILE="demo"
 # === ISTIOCTL Setup ===
 ISTIO_VERSION="1.26.2"
 ISTIOCTL_LOCAL="$HOME/.local/bin/istioctl"
-
-DOMAINS=("$@")
-if [ ${#DOMAINS[@]} -eq 0 ]; then
-  echo "Usage: $0 domain1 domain2 ..."
-  exit 1
-fi
-
-WILDCARD_DOMAIN=$(echo "${DOMAINS[0]}" | cut -d. -f2-)
+WILDCARD_DOMAIN="localhost"
 
 echo "[0/9] Installing Istio..."
 
@@ -50,6 +43,7 @@ kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
+- role: worker
   extraPortMappings:
   - containerPort: ${NODEPORT_HTTPS}
     hostPort: ${HOST_HTTPS_PORT}
@@ -57,6 +51,7 @@ nodes:
   - containerPort: ${NODEPORT_HTTP}
     hostPort: ${HOST_HTTP_PORT}
     protocol: TCP
+- role: worker
 EOF
 fi
 
@@ -102,12 +97,56 @@ EOF
 
 kubectl wait --for=condition=Ready --timeout=120s certificate/wildcard-cert -n ${CERT_NAMESPACE}
 
+
+
+echo "[7/9] Deploying httpbin app..."
+
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpbin
+  labels:
+    app: httpbin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: httpbin
+  template:
+    metadata:
+      labels:
+        app: httpbin
+    spec:
+      containers:
+      - name: httpbin
+        image: kennethreitz/httpbin
+        ports:
+        - containerPort: 80
+EOF
+
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpbin
+spec:
+  selector:
+    app: httpbin
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+EOF
+
+kubectl wait --for=condition=Available --timeout=120s deployment/httpbin -n default
+
 echo "[6/9] Creating Istio Gateway..."
 cat <<EOF | kubectl apply -f -
 apiVersion: networking.istio.io/v1beta1
 kind: Gateway
 metadata:
-  name: example-gateway
+  name: httpbin-gateway
   namespace: default
 spec:
   selector:
@@ -118,28 +157,24 @@ spec:
       name: https
       protocol: HTTPS
     hosts:
-    - "*.${WILDCARD_DOMAIN}"
+    - "httpbin.${WILDCARD_DOMAIN}"
     tls:
       mode: SIMPLE
       credentialName: ${CERT_SECRET_NAME}
 EOF
 
-echo "[7/9] Deploying httpbin app..."
-kubectl create deploy httpbin --image=kennethreitz/httpbin --port=80
-kubectl expose deploy httpbin --port=80
-
 echo "[8/9] Creating VirtualServices..."
-for DOMAIN in "${DOMAINS[@]}"; do
+
 cat <<EOF | kubectl apply -f -
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: httpbin-${DOMAIN//./-}
+  name: httpbin-vs
 spec:
   hosts:
-  - "${DOMAIN}"
+  - "httpbin.${WILDCARD_DOMAIN}"
   gateways:
-  - example-gateway
+  - httpbin-gateway
   http:
   - match:
     - uri:
@@ -150,23 +185,6 @@ spec:
         port:
           number: 80
 EOF
-done
-
-echo "[9/9] Writing /etc/hosts entries..."
-
-for DOMAIN in "${DOMAINS[@]}"; do
-  if ! grep -q "${DOMAIN}" /etc/hosts; then
-    echo "127.0.0.1 ${DOMAIN}" | sudo tee -a /etc/hosts
-  else
-    echo "Already in /etc/hosts: ${DOMAIN}"
-  fi
-done
-
-# echo
-# echo "✅ Done! Test with:"
-# for DOMAIN in "${DOMAINS[@]}"; do
-#   echo "  curl -k https://${DOMAIN}:${HOST_HTTPS_PORT}/get"
-# done
 
 # === Fix Istio Ingress Gateway NodePort ===
 echo "[10/9] Fixing Istio Ingress Gateway NodePort..."
@@ -184,6 +202,7 @@ echo "Updated Istio Ingress Gateway to use NodePort ${NODEPORT_HTTPS}"
 echo
 echo "🔍 Testing connections..."
 TEST_SUCCESS=true
+DOMAINS=("httpbin.${WILDCARD_DOMAIN}")
 for DOMAIN in "${DOMAINS[@]}"; do
   echo -n "  → Testing https://${DOMAIN}:${HOST_HTTPS_PORT}/get ... "
   if curl -sk --max-time 10 "https://${DOMAIN}:${HOST_HTTPS_PORT}/get" >/dev/null; then
@@ -194,20 +213,20 @@ for DOMAIN in "${DOMAINS[@]}"; do
   fi
 done
 
-# === Cleanup if successful ===
-if [ "$TEST_SUCCESS" = true ]; then
-  echo
-  echo "🧹 Cleaning up test app and virtual services..."
-  kubectl delete deploy httpbin || true
-  kubectl delete svc httpbin || true
-  for DOMAIN in "${DOMAINS[@]}"; do
-    kubectl delete virtualservice "httpbin-${DOMAIN//./-}" || true
-  done
-  echo "✅ Cleanup complete."
-else
-  echo
-  echo "⚠️ Some connections failed. Keeping resources for debugging."
-fi
+# # === Cleanup if successful ===
+# if [ "$TEST_SUCCESS" = true ]; then
+#   echo
+#   echo "🧹 Cleaning up test app and virtual services..."
+#   kubectl delete deploy httpbin || true
+#   kubectl delete svc httpbin || true
+#   for DOMAIN in "${DOMAINS[@]}"; do
+#     kubectl delete virtualservice "httpbin-${DOMAIN//./-}" || true
+#   done
+#   echo "✅ Cleanup complete."
+# else
+#   echo
+#   echo "⚠️ Some connections failed. Keeping resources for debugging."
+# fi
 
 echo
 echo "🎉 Done!"

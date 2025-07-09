@@ -180,7 +180,7 @@ swaggerGeneratorv2:
   useLocal: true
 
   # Host to use for the generator
-  generatorHost: "https://swagger-generator-v2.localhost:9443"
+  generatorHost: "https://swagger-generator-v2.localhost"
 
 # Swagger Generator v3 configuration
 swaggerGeneratorv3:
