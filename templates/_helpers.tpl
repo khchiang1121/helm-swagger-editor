@@ -51,6 +51,54 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+Swagger Editor component labels
+*/}}
+{{- define "swagger-editor.componentLabels" -}}
+{{- include "swagger-editor.labels" . }}
+app.kubernetes.io/component: swagger-editor
+{{- end }}
+
+{{/*
+Swagger Editor component selector labels
+*/}}
+{{- define "swagger-editor.componentSelectorLabels" -}}
+{{- include "swagger-editor.selectorLabels" . }}
+app.kubernetes.io/component: swagger-editor
+{{- end }}
+
+{{/*
+Swagger Generator v2 component labels
+*/}}
+{{- define "swagger-generator-v2.componentLabels" -}}
+{{- include "swagger-editor.labels" . }}
+app.kubernetes.io/component: swagger-generator-v2
+{{- end }}
+
+{{/*
+Swagger Generator v2 component selector labels
+*/}}
+{{- define "swagger-generator-v2.componentSelectorLabels" -}}
+{{- include "swagger-editor.selectorLabels" . }}
+app.kubernetes.io/component: swagger-generator-v2
+{{- end }}
+
+{{/*
+Swagger Generator v3 component labels
+*/}}
+{{- define "swagger-generator-v3.componentLabels" -}}
+{{- include "swagger-editor.labels" . }}
+app.kubernetes.io/component: swagger-generator-v3
+{{- end }}
+
+{{/*
+Swagger Generator v3 component selector labels
+*/}}
+{{- define "swagger-generator-v3.componentSelectorLabels" -}}
+{{- include "swagger-editor.selectorLabels" . }}
+app.kubernetes.io/component: swagger-generator-v3
+{{- end }}
+
+{{/*
 OpenAPI Generator component labels
 */}}
 {{- define "openapi-generator.labels" -}}
@@ -64,6 +112,22 @@ OpenAPI Generator selector labels
 {{- define "openapi-generator.selectorLabels" -}}
 {{- include "swagger-editor.selectorLabels" . }}
 app.kubernetes.io/component: openapi-generator
+{{- end }}
+
+{{/*
+Swagger Converter v1 component labels
+*/}}
+{{- define "swagger-converter-v1.componentLabels" -}}
+{{- include "swagger-editor.labels" . }}
+app.kubernetes.io/component: swagger-converter-v1
+{{- end }}
+
+{{/*
+Swagger Converter v1 component selector labels
+*/}}
+{{- define "swagger-converter-v1.componentSelectorLabels" -}}
+{{- include "swagger-editor.selectorLabels" . }}
+app.kubernetes.io/component: swagger-converter-v1
 {{- end }}
 
 {{/*

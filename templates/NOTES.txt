@@ -1,22 +1,189 @@
-1. Get the application URL by running these commands:
+1. Get the application URLs by running the appropriate commands below:
+
+{{- if .Values.swaggerEditor.enabled }}
+## Swagger Editor
 {{- if .Values.swaggerEditor.ingress.enabled }}
+Ingress:
 {{- range $host := .Values.swaggerEditor.ingress.hosts }}
-  {{- range .paths }}
-  http{{ if $.Values.swaggerEditor.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
-  {{- end }}
+{{- range .paths }}
+  - http{{ if $.Values.swaggerEditor.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
 {{- end }}
+{{- end }}
+
 {{- else if contains "NodePort" .Values.swaggerEditor.service.type }}
-  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "swagger-editor.fullname" . }})
-  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-  echo http://$NODE_IP:$NODE_PORT
+NodePort:
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} \
+    -o jsonpath="{.spec.ports[0].nodePort}" \
+    services {{ include "swagger-editor.fullname" . }}-swagger-editor)
+  
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} \
+    -o jsonpath="{.items[0].status.addresses[0].address}")
+  
+  echo "Swagger Editor URL: http://$NODE_IP:$NODE_PORT"
+
 {{- else if contains "LoadBalancer" .Values.swaggerEditor.service.type }}
-     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-           You can watch its status by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "swagger-editor.fullname" . }}'
-  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "swagger-editor.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
-  echo http://$SERVICE_IP:{{ .Values.swaggerEditor.service.port }}
+LoadBalancer:
+  NOTE: It may take a few minutes for the LoadBalancer IP to become available.
+        You can watch the status by running:
+        kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "swagger-editor.fullname" . }}-swagger-editor
+  
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} \
+    {{ include "swagger-editor.fullname" . }}-swagger-editor \
+    --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  
+  echo "Swagger Editor URL: http://$SERVICE_IP:{{ .Values.swaggerEditor.service.port }}"
+
 {{- else if contains "ClusterIP" .Values.swaggerEditor.service.type }}
-  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "swagger-editor.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
-  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
-  echo "Visit http://127.0.0.1:8080 to use your application"
+ClusterIP (via port-forward):
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} \
+    -l "app.kubernetes.io/name={{ include "swagger-editor.name" . }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=swagger-editor" \
+    -o jsonpath="{.items[0].metadata.name}")
+  
+  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME \
+    -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  
+  echo "Swagger Editor URL: http://127.0.0.1:8080"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+{{- end }}
+{{- end }}
+
+{{- if .Values.swaggerGeneratorv2.enabled }}
+## Swagger Generator v2
+{{- if .Values.swaggerGeneratorv2.ingress.enabled }}
+Ingress:
+{{- range $host := .Values.swaggerGeneratorv2.ingress.hosts }}
+{{- range .paths }}
+  - http{{ if $.Values.swaggerGeneratorv2.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+{{- end }}
+{{- end }}
+
+{{- else if contains "NodePort" .Values.swaggerGeneratorv2.service.type }}
+NodePort:
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} \
+    -o jsonpath="{.spec.ports[0].nodePort}" \
+    services {{ include "swagger-editor.fullname" . }}-swagger-generator-v2)
+  
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} \
+    -o jsonpath="{.items[0].status.addresses[0].address}")
+  
+  echo "Swagger Generator v2 URL: http://$NODE_IP:$NODE_PORT"
+
+{{- else if contains "LoadBalancer" .Values.swaggerGeneratorv2.service.type }}
+LoadBalancer:
+  NOTE: It may take a few minutes for the LoadBalancer IP to become available.
+        You can watch the status by running:
+        kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "swagger-editor.fullname" . }}-swagger-generator-v2
+  
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} \
+    {{ include "swagger-editor.fullname" . }}-swagger-generator-v2 \
+    --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  
+  echo "Swagger Generator v2 URL: http://$SERVICE_IP:{{ .Values.swaggerGeneratorv2.service.port }}"
+
+{{- else if contains "ClusterIP" .Values.swaggerGeneratorv2.service.type }}
+ClusterIP (via port-forward):
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} \
+    -l "app.kubernetes.io/name={{ include "swagger-editor.name" . }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=swagger-generator-v2" \
+    -o jsonpath="{.items[0].metadata.name}")
+  
+  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME \
+    -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  
+  echo "Swagger Generator v2 URL: http://127.0.0.1:8081"
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8081:$CONTAINER_PORT
+{{- end }}
+{{- end }}
+
+{{- if .Values.swaggerGeneratorv3.enabled }}
+## Swagger Generator v3
+{{- if .Values.swaggerGeneratorv3.ingress.enabled }}
+Ingress:
+{{- range $host := .Values.swaggerGeneratorv3.ingress.hosts }}
+{{- range .paths }}
+  - http{{ if $.Values.swaggerGeneratorv3.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+{{- end }}
+{{- end }}
+
+{{- else if contains "NodePort" .Values.swaggerGeneratorv3.service.type }}
+NodePort:
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} \
+    -o jsonpath="{.spec.ports[0].nodePort}" \
+    services {{ include "swagger-editor.fullname" . }}-swagger-generator-v3)
+  
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} \
+    -o jsonpath="{.items[0].status.addresses[0].address}")
+  
+  echo "Swagger Generator v3 URL: http://$NODE_IP:$NODE_PORT"
+
+{{- else if contains "LoadBalancer" .Values.swaggerGeneratorv3.service.type }}
+LoadBalancer:
+  NOTE: It may take a few minutes for the LoadBalancer IP to become available.
+        You can watch the status by running:
+        kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "swagger-editor.fullname" . }}-swagger-generator-v3
+  
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} \
+    {{ include "swagger-editor.fullname" . }}-swagger-generator-v3 \
+    --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  
+  echo "Swagger Generator v3 URL: http://$SERVICE_IP:{{ .Values.swaggerGeneratorv3.service.port }}"
+
+{{- else if contains "ClusterIP" .Values.swaggerGeneratorv3.service.type }}
+ClusterIP (via port-forward):
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} \
+    -l "app.kubernetes.io/name={{ include "swagger-editor.name" . }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=swagger-generator-v3" \
+    -o jsonpath="{.items[0].metadata.name}")
+  
+  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME \
+    -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  
+  echo "Swagger Generator v3 URL: http://127.0.0.1:8082"
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8082:$CONTAINER_PORT
+{{- end }}
+{{- end }}
+
+{{- if .Values.openapiGenerator.enabled }}
+## OpenAPI Generator
+{{- if .Values.openapiGenerator.ingress.enabled }}
+Ingress:
+{{- range $host := .Values.openapiGenerator.ingress.hosts }}
+{{- range .paths }}
+  - http{{ if $.Values.openapiGenerator.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+{{- end }}
+{{- end }}
+
+{{- else if contains "NodePort" .Values.openapiGenerator.service.type }}
+NodePort:
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} \
+    -o jsonpath="{.spec.ports[0].nodePort}" \
+    services {{ include "swagger-editor.fullname" . }}-openapi-generator)
+  
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} \
+    -o jsonpath="{.items[0].status.addresses[0].address}")
+  
+  echo "OpenAPI Generator URL: http://$NODE_IP:$NODE_PORT"
+
+{{- else if contains "LoadBalancer" .Values.openapiGenerator.service.type }}
+LoadBalancer:
+  NOTE: It may take a few minutes for the LoadBalancer IP to become available.
+        You can watch the status by running:
+        kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "swagger-editor.fullname" . }}-openapi-generator
+  
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} \
+    {{ include "swagger-editor.fullname" . }}-openapi-generator \
+    --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  
+  echo "OpenAPI Generator URL: http://$SERVICE_IP:{{ .Values.openapiGenerator.service.port }}"
+
+{{- else if contains "ClusterIP" .Values.openapiGenerator.service.type }}
+ClusterIP (via port-forward):
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} \
+    -l "app.kubernetes.io/name={{ include "swagger-editor.name" . }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=openapi-generator" \
+    -o jsonpath="{.items[0].metadata.name}")
+  
+  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME \
+    -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  
+  echo "OpenAPI Generator URL: http://127.0.0.1:8083"
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8083:$CONTAINER_PORT
+{{- end }}
 {{- end }}

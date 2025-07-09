@@ -21,4 +21,9 @@
 .idea/
 *.tmproj
 .vscode/
-istio-1.26.2/
+# Istio installation directories
+istio-*/
+# Test scripts (not needed in chart package)
+scripts/
+.github/
+Makefile

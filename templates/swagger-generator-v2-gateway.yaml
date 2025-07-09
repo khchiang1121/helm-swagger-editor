@@ -1,0 +1,26 @@
+{{- if .Values.swaggerGeneratorv2.enabled -}}
+{{- if .Values.swaggerGeneratorv2.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: {{ .Values.swaggerGeneratorv2.istio.gateway.name | quote }}
+  namespace: {{ if .Values.swaggerGeneratorv2.istio.gateway.namespace }}{{ .Values.swaggerGeneratorv2.istio.gateway.namespace | quote }}{{ else }}{{ .Release.Namespace | quote }}{{ end }}
+  labels:
+    {{- include "swagger-generator-v2.componentLabels" . | nindent 4 }}
+spec:
+  selector:
+    {{- toYaml .Values.swaggerGeneratorv2.istio.gateway.selector | nindent 4 }}
+  servers:
+    - port:
+        number: {{ .Values.swaggerGeneratorv2.istio.gateway.port }}
+        name: {{ if .Values.swaggerGeneratorv2.istio.gateway.tls }}https{{ else }}http{{ end }}
+        protocol: {{ if .Values.swaggerGeneratorv2.istio.gateway.tls }}HTTPS{{ else }}HTTP{{ end }}
+      hosts:
+        {{- toYaml .Values.swaggerGeneratorv2.istio.gateway.hosts | nindent 8 }}
+      {{- if .Values.swaggerGeneratorv2.istio.gateway.tls }}
+      tls:
+        mode: SIMPLE
+        credentialName: {{ .Values.swaggerGeneratorv2.istio.gateway.tlsSecret | default (printf "%s-swagger-generator-v2-cert" (include "swagger-editor.fullname" .)) | quote }}
+      {{- end }}
+{{- end }}
+{{- end }} 

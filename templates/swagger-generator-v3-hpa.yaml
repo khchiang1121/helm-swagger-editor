@@ -1,0 +1,34 @@
+{{- if .Values.swaggerGeneratorv3.enabled -}}
+{{- if .Values.swaggerGeneratorv3.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "swagger-editor.fullname" . }}-swagger-generator-v3
+  labels:
+    {{- include "swagger-generator-v3.componentLabels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "swagger-editor.fullname" . }}-swagger-generator-v3
+  minReplicas: {{ .Values.swaggerGeneratorv3.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.swaggerGeneratorv3.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.swaggerGeneratorv3.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.swaggerGeneratorv3.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.swaggerGeneratorv3.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.swaggerGeneratorv3.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}
+{{- end }} 

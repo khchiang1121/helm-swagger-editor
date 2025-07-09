@@ -1,0 +1,248 @@
+# Swagger Editor configuration
+swaggerEditor:
+  enabled: true
+
+  # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+  replicaCount: 1
+
+  image:
+    repository: docker.swagger.io/swaggerapi/swagger-editor
+    pullPolicy: IfNotPresent
+    tag: "v4-latest"
+
+  # This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+  service:
+    # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+    type: ClusterIP
+    # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+    port: 8080
+
+  istio:
+    enabled: true
+    gateway:
+      name: "swagger-editor-gateway"
+      namespace: ""
+      selector:
+        istio: ingressgateway
+      hosts:
+        - "swagger-editor.example.com"
+      port: 443
+      tls: true
+      tlsSecret: "swagger-editor-cert"
+      certManager:
+        enabled: true
+        certificateName: "swagger-editor-cert"
+        issuerName: "selfsigned-issuer"
+        issuerKind: "ClusterIssuer"
+        namespace: "istio-system"
+    virtualService:
+      hosts:
+        - "swagger-editor.example.com"
+      gateways:
+        - "swagger-editor-gateway"
+      path: "/"
+      rewrite: "/"
+  
+  # URL to an API definition to load by default (takes precedence over SWAGGER_FILE)
+  url: ""
+  # Path to a swagger file to load (ignored if url is set)
+  swaggerFile: ""
+  # Base URL for the application (e.g. /swagger-editor)
+  baseUrl: "/"
+  # Port to run the application on (default 8080)
+  port: 8080
+  # Google Tag Manager ID
+  gtm: ""
+  # Custom generator/converter endpoints
+  urlSwagger2Generator: "https://generator.swagger.io/api/swagger.json"
+  urlOas3Generator: "https://generator3.swagger.io/openapi.json"
+  urlSwagger2Converter: "https://converter.swagger.io/api/convert"
+
+swaggerConverterv1:
+  enabled: true
+
+  # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+  replicaCount: 1
+
+  image:
+    repository: swaggerapi/swagger-converter
+    pullPolicy: IfNotPresent
+    tag: v1.0.5
+
+  # This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+  service:
+    # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+    type: ClusterIP
+    # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+    port: 8080
+
+  # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
+
+  istio:
+    enabled: true
+    gateway:
+      name: "swagger-converter-v1-gateway"
+      namespace: ""
+      selector:
+        istio: ingressgateway
+      hosts:
+        - "swagger-converter-v1.example.com"
+      port: 443
+      tls: true
+      tlsSecret: "swagger-converter-v1-cert"
+      certManager:
+        enabled: true
+        certificateName: "swagger-converter-v1-cert"
+        issuerName: "selfsigned-issuer"
+        issuerKind: "ClusterIssuer"
+        namespace: "istio-system"
+    virtualService:
+      hosts:
+        - "swagger-converter-v1.example.com"
+      gateways:
+        - "swagger-converter-v1-gateway"
+      path: "/"
+      rewrite: "/"
+
+  # Port to run the application on (default 8080)
+  port: 8080
+
+  # If true, swaggerEditor will use the local codegen endpoints
+  useLocal: true
+
+# Swagger Generator v2 configuration
+swaggerGeneratorv2:
+  enabled: true
+
+  # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+  replicaCount: 1
+
+  image:
+    repository: swaggerapi/swagger-generator
+    pullPolicy: IfNotPresent
+    tag: v2.4.46
+
+  # This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+  service:
+    # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+    type: ClusterIP
+    # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+    port: 8080
+
+  # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
+
+  istio:
+    enabled: true
+    gateway:
+      name: "swagger-generator-v2-gateway"
+      namespace: ""
+      selector:
+        istio: ingressgateway
+      hosts:
+        - "swagger-generator-v2.example.com"
+      port: 443
+      tls: true
+      tlsSecret: "swagger-generator-v2-cert"
+      certManager:
+        enabled: true
+        certificateName: "swagger-generator-v2-cert"
+        issuerName: "selfsigned-issuer"
+        issuerKind: "ClusterIssuer"
+        namespace: "istio-system"
+    virtualService:
+      hosts:
+        - "swagger-generator-v2.example.com"
+      gateways:
+        - "swagger-generator-v2-gateway"
+      path: "/"
+      rewrite: "/"
+
+  # Port to run the application on (default 8080)
+  port: 8080
+
+  # If true, swaggerEditor will use the local codegen endpoints
+  useLocal: true
+
+  # Host to use for the generator
+  generatorHost: "https://swagger-generator-v2.example.com:9443"
+
+# Swagger Generator v3 configuration
+swaggerGeneratorv3:
+  enabled: true
+
+  # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+  replicaCount: 1
+
+  image:
+    repository: swaggerapi/swagger-generator-v3
+    pullPolicy: IfNotPresent
+    tag: 3.0.71
+
+  # This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+  service:
+    # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+    type: ClusterIP
+    # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+    port: 8080
+
+  # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  livenessProbe:
+    httpGet:
+      path: /openapi.json
+      port: http
+  readinessProbe:
+    httpGet:
+      path: /openapi.json
+      port: http
+
+  istio:
+    enabled: true
+    gateway:
+      name: "swagger-generator-v3-gateway"
+      namespace: ""
+      selector:
+        istio: ingressgateway
+      hosts:
+        - "swagger-generator-v3.example.com"
+      port: 443
+      tls: true
+      tlsSecret: "swagger-generator-v3-cert"
+      certManager:
+        enabled: true
+        certificateName: "swagger-generator-v3-cert"
+        issuerName: "selfsigned-issuer"
+        issuerKind: "ClusterIssuer"
+        namespace: "istio-system"
+    virtualService:
+      hosts:
+        - "swagger-generator-v3.example.com"
+      gateways:
+        - "swagger-generator-v3-gateway"
+      path: "/"
+      rewrite: "/"
+
+  # Port to run the application on (default 8080)
+  port: 8080
+
+  # If true, swaggerEditor will use the local codegen endpoints
+  useLocal: true
+
+# OpenAPI Generator configuration
+openapiGenerator:
+  enabled: false

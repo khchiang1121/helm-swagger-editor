@@ -1,0 +1,45 @@
+{{- if .Values.swaggerGeneratorv3.enabled -}}
+{{- if .Values.swaggerGeneratorv3.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "swagger-editor.fullname" . }}-swagger-generator-v3
+  labels:
+    {{- include "swagger-generator-v3.componentLabels" . | nindent 4 }}
+  {{- with .Values.swaggerGeneratorv3.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.swaggerGeneratorv3.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- if .Values.swaggerGeneratorv3.ingress.tls }}
+  tls:
+    {{- range .Values.swaggerGeneratorv3.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.swaggerGeneratorv3.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            {{- with .pathType }}
+            pathType: {{ . }}
+            {{- end }}
+            backend:
+              service:
+                name: {{ include "swagger-editor.fullname" $ }}-swagger-generator-v3
+                port:
+                  number: {{ $.Values.swaggerGeneratorv3.service.port }}
+          {{- end }}
+    {{- end }}
+{{- end }}
+{{- end }} 

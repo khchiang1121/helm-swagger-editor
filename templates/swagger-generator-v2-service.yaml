@@ -1,0 +1,18 @@
+{{- if .Values.swaggerGeneratorv2.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "swagger-editor.fullname" . }}-swagger-generator-v2
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "swagger-generator-v2.componentLabels" . | nindent 4 }}
+spec:
+  type: {{ .Values.swaggerGeneratorv2.service.type }}
+  ports:
+    - port: {{ .Values.swaggerGeneratorv2.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "swagger-generator-v2.componentSelectorLabels" . | nindent 4 }}
+{{- end }} 

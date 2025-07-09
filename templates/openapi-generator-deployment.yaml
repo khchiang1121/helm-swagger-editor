@@ -41,6 +41,13 @@ spec:
           {{- end }}
           image: "{{ .Values.openapiGenerator.image.repository }}:{{ .Values.openapiGenerator.image.tag }}"
           imagePullPolicy: {{ .Values.openapiGenerator.image.pullPolicy }}
+          env:
+            - name: SERVER_PORT
+              value: "{{ .Values.openapiGenerator.service.port }}"
+            - name: GENERATOR_HOST
+              value: "https://openapi-generator.example.com:9443"
+            - name: "HTTP_PORT"
+              value: "8080"
           ports:
             - containerPort: {{ .Values.openapiGenerator.service.port }}
               name: http

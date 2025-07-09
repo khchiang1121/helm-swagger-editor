@@ -1,15 +1,16 @@
+{{- if .Values.swaggerEditor.enabled -}}
 {{- if .Values.swaggerEditor.autoscaling.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "swagger-editor.fullname" . }}
+  name: {{ include "swagger-editor.fullname" . }}-swagger-editor
   labels:
-    {{- include "swagger-editor.labels" . | nindent 4 }}
+    {{- include "swagger-editor.componentLabels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "swagger-editor.fullname" . }}
+    name: {{ include "swagger-editor.fullname" . }}-swagger-editor
   minReplicas: {{ .Values.swaggerEditor.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.swaggerEditor.autoscaling.maxReplicas }}
   metrics:
@@ -29,4 +30,5 @@ spec:
           type: Utilization
           averageUtilization: {{ .Values.swaggerEditor.autoscaling.targetMemoryUtilizationPercentage }}
     {{- end }}
+{{- end }}
 {{- end }}

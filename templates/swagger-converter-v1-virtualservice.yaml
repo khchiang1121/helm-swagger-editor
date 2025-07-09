@@ -1,0 +1,32 @@
+{{- if .Values.swaggerConverterv1.enabled }}
+{{- if .Values.swaggerConverterv1.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "swagger-editor.fullname" . }}-swagger-converter-v1
+  labels:
+    {{- include "swagger-converter-v1.componentLabels" . | nindent 4 }}
+spec:
+  hosts:
+    {{- range .Values.swaggerConverterv1.istio.virtualService.hosts }}
+    - {{ . | quote }}
+    {{- end }}
+  gateways:
+    {{- range .Values.swaggerConverterv1.istio.virtualService.gateways }}
+    - {{ . | quote }}
+    {{- end }}
+  http:
+    - match:
+        - uri:
+            prefix: {{ .Values.swaggerConverterv1.istio.virtualService.path }}
+      route:
+        - destination:
+            host: {{ include "swagger-editor.fullname" . }}-swagger-converter-v1.{{ .Release.Namespace }}.svc.cluster.local
+            port:
+              number: {{ .Values.swaggerConverterv1.service.port }}
+      {{- if .Values.swaggerConverterv1.istio.virtualService.rewrite }}
+      rewrite:
+        uri: {{ .Values.swaggerConverterv1.istio.virtualService.rewrite }}
+      {{- end }}
+{{- end }}
+{{- end }} 

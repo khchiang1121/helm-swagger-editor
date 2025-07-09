@@ -1,8 +1,9 @@
+{{- if .Values.swaggerEditor.enabled -}}
 {{- if .Values.swaggerEditor.ingress.enabled -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "swagger-editor.fullname" . }}
+  name: {{ include "swagger-editor.fullname" . }}-swagger-editor
   labels:
     {{- include "swagger-editor.labels" . | nindent 4 }}
   {{- with .Values.swaggerEditor.ingress.annotations }}
@@ -35,9 +36,10 @@ spec:
             {{- end }}
             backend:
               service:
-                name: {{ include "swagger-editor.fullname" $ }}
+                name: {{ include "swagger-editor.fullname" $ }}-swagger-editor
                 port:
                   number: {{ $.Values.swaggerEditor.service.port }}
           {{- end }}
     {{- end }}
+{{- end }}
 {{- end }}

@@ -1,0 +1,18 @@
+{{- if .Values.swaggerConverterv1.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "swagger-editor.fullname" . }}-swagger-converter-v1
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "swagger-converter-v1.componentLabels" . | nindent 4 }}
+spec:
+  type: {{ .Values.swaggerConverterv1.service.type }}
+  ports:
+    - port: {{ .Values.swaggerConverterv1.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "swagger-converter-v1.componentSelectorLabels" . | nindent 4 }}
+{{- end }} 

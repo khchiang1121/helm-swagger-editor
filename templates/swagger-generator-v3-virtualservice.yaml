@@ -1,0 +1,27 @@
+{{- if .Values.swaggerGeneratorv3.enabled -}}
+{{- if .Values.swaggerGeneratorv3.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "swagger-editor.fullname" . }}-swagger-generator-v3-vs
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "swagger-generator-v3.componentLabels" . | nindent 4 }}
+spec:
+  hosts:
+    {{- toYaml .Values.swaggerGeneratorv3.istio.virtualService.hosts | nindent 4 }}
+  gateways:
+    {{- toYaml .Values.swaggerGeneratorv3.istio.virtualService.gateways | nindent 4 }}
+  http:
+    - match:
+        - uri:
+            prefix: {{ .Values.swaggerGeneratorv3.istio.virtualService.path | quote }}
+      rewrite:
+        uri: {{ .Values.swaggerGeneratorv3.istio.virtualService.rewrite | quote }}
+      route:
+        - destination:
+            host: {{ include "swagger-editor.fullname" . }}-swagger-generator-v3
+            port:
+              number: {{ .Values.swaggerGeneratorv3.service.port }}
+{{- end }}
+{{- end }} 

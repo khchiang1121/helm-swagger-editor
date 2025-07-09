@@ -1,0 +1,22 @@
+{{- if .Values.swaggerConverterv1.enabled }}
+{{- if .Values.swaggerConverterv1.istio.enabled }}
+{{- if .Values.swaggerConverterv1.istio.gateway.certManager.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.swaggerConverterv1.istio.gateway.certManager.certificateName | default (printf "%s-swagger-converter-v1-cert" (include "swagger-editor.fullname" .)) }}
+  namespace: {{ .Values.swaggerConverterv1.istio.gateway.certManager.namespace | default "istio-system" }}
+  labels:
+    {{- include "swagger-converter-v1.componentLabels" . | nindent 4 }}
+spec:
+  secretName: {{ .Values.swaggerConverterv1.istio.gateway.tlsSecret | default (printf "%s-swagger-converter-v1-cert" (include "swagger-editor.fullname" .)) }}
+  issuerRef:
+    name: {{ .Values.swaggerConverterv1.istio.gateway.certManager.issuerName | default "selfsigned-issuer" }}
+    kind: {{ .Values.swaggerConverterv1.istio.gateway.certManager.issuerKind | default "ClusterIssuer" }}
+  dnsNames:
+    {{- range .Values.swaggerConverterv1.istio.gateway.hosts }}
+    - {{ . | quote }}
+    {{- end }}
+{{- end }}
+{{- end }}
+{{- end }} 

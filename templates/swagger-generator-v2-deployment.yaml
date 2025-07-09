@@ -1,0 +1,83 @@
+{{- if .Values.swaggerGeneratorv2.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "swagger-editor.fullname" . }}-swagger-generator-v2
+  labels:
+    {{- include "swagger-generator-v2.componentLabels" . | nindent 4 }}
+spec:
+  {{- if not .Values.swaggerGeneratorv2.autoscaling.enabled }}
+  replicas: {{ .Values.swaggerGeneratorv2.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "swagger-generator-v2.componentSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.swaggerGeneratorv2.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "swagger-generator-v2.componentLabels" . | nindent 8 }}
+        {{- with .Values.swaggerGeneratorv2.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "swagger-editor.serviceAccountName" . }}
+      {{- with .Values.swaggerGeneratorv2.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: swagger-generator-v2
+          {{- with .Values.swaggerGeneratorv2.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.swaggerGeneratorv2.image.repository }}:{{ .Values.swaggerGeneratorv2.image.tag }}"
+          imagePullPolicy: {{ .Values.swaggerGeneratorv2.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.swaggerGeneratorv2.service.port }}
+              protocol: TCP
+          env:
+            - name: GENERATOR_HOST
+              value: {{ .Values.swaggerGeneratorv2.generatorHost }}
+          {{- with .Values.swaggerGeneratorv2.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.swaggerGeneratorv2.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.swaggerGeneratorv2.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.swaggerGeneratorv2.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.swaggerGeneratorv2.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.swaggerGeneratorv2.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.swaggerGeneratorv2.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.swaggerGeneratorv2.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }} 

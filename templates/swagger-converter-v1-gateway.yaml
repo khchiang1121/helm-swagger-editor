@@ -1,0 +1,31 @@
+{{- if .Values.swaggerConverterv1.enabled }}
+{{- if .Values.swaggerConverterv1.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: {{ .Values.swaggerConverterv1.istio.gateway.name }}
+  namespace: {{ .Values.swaggerConverterv1.istio.gateway.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "swagger-converter-v1.componentLabels" . | nindent 4 }}
+spec:
+  selector:
+    {{- toYaml .Values.swaggerConverterv1.istio.gateway.selector | nindent 4 }}
+  servers:
+    - port:
+        number: {{ .Values.swaggerConverterv1.istio.gateway.port }}
+        name: {{ if .Values.swaggerConverterv1.istio.gateway.tls }}https{{ else }}http{{ end }}
+        protocol: {{ if .Values.swaggerConverterv1.istio.gateway.tls }}HTTPS{{ else }}HTTP{{ end }}
+      hosts:
+        {{- range .Values.swaggerConverterv1.istio.gateway.hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      {{- if .Values.swaggerConverterv1.istio.gateway.tls }}
+      tls:
+        httpsRedirect: true
+        mode: SIMPLE
+        {{- if .Values.swaggerConverterv1.istio.gateway.tlsSecret }}
+        credentialName: {{ .Values.swaggerConverterv1.istio.gateway.tlsSecret }}
+        {{- end }}
+      {{- end }}
+{{- end }}
+{{- end }} 
