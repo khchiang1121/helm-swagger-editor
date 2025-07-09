@@ -25,7 +25,7 @@ swaggerEditor:
       selector:
         istio: ingressgateway
       hosts:
-        - "swagger-editor.example.com"
+        - "swagger-editor.localhost"
       port: 443
       tls: true
       tlsSecret: "swagger-editor-cert"
@@ -37,7 +37,7 @@ swaggerEditor:
         namespace: "istio-system"
     virtualService:
       hosts:
-        - "swagger-editor.example.com"
+        - "swagger-editor.localhost"
       gateways:
         - "swagger-editor-gateway"
       path: "/"
@@ -94,7 +94,7 @@ swaggerConverterv1:
       selector:
         istio: ingressgateway
       hosts:
-        - "swagger-converter-v1.example.com"
+        - "swagger-converter-v1.localhost"
       port: 443
       tls: true
       tlsSecret: "swagger-converter-v1-cert"
@@ -106,7 +106,7 @@ swaggerConverterv1:
         namespace: "istio-system"
     virtualService:
       hosts:
-        - "swagger-converter-v1.example.com"
+        - "swagger-converter-v1.localhost"
       gateways:
         - "swagger-converter-v1-gateway"
       path: "/"
@@ -155,7 +155,7 @@ swaggerGeneratorv2:
       selector:
         istio: ingressgateway
       hosts:
-        - "swagger-generator-v2.example.com"
+        - "swagger-generator-v2.localhost"
       port: 443
       tls: true
       tlsSecret: "swagger-generator-v2-cert"
@@ -167,7 +167,7 @@ swaggerGeneratorv2:
         namespace: "istio-system"
     virtualService:
       hosts:
-        - "swagger-generator-v2.example.com"
+        - "swagger-generator-v2.localhost"
       gateways:
         - "swagger-generator-v2-gateway"
       path: "/"
@@ -180,7 +180,7 @@ swaggerGeneratorv2:
   useLocal: true
 
   # Host to use for the generator
-  generatorHost: "https://swagger-generator-v2.example.com:9443"
+  generatorHost: "https://swagger-generator-v2.localhost:9443"
 
 # Swagger Generator v3 configuration
 swaggerGeneratorv3:
@@ -219,7 +219,7 @@ swaggerGeneratorv3:
       selector:
         istio: ingressgateway
       hosts:
-        - "swagger-generator-v3.example.com"
+        - "swagger-generator-v3.localhost"
       port: 443
       tls: true
       tlsSecret: "swagger-generator-v3-cert"
@@ -231,7 +231,7 @@ swaggerGeneratorv3:
         namespace: "istio-system"
     virtualService:
       hosts:
-        - "swagger-generator-v3.example.com"
+        - "swagger-generator-v3.localhost"
       gateways:
         - "swagger-generator-v3-gateway"
       path: "/"

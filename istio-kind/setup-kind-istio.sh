@@ -4,6 +4,8 @@ set -e
 # === Config ===
 CLUSTER_NAME="istio-cluster"
 HOST_HTTPS_PORT=9443
+HOST_HTTP_PORT=9080
+NODEPORT_HTTP=30080
 NODEPORT_HTTPS=30443  # Valid NodePort in range 30000-32767
 CERT_NAMESPACE="istio-system"
 CERT_SECRET_NAME="wildcard-cert"
@@ -51,6 +53,9 @@ nodes:
   extraPortMappings:
   - containerPort: ${NODEPORT_HTTPS}
     hostPort: ${HOST_HTTPS_PORT}
+    protocol: TCP
+  - containerPort: ${NODEPORT_HTTP}
+    hostPort: ${HOST_HTTP_PORT}
     protocol: TCP
 EOF
 fi
@@ -170,7 +175,8 @@ CURRENT_NODEPORT=$(kubectl get svc -n istio-system istio-ingressgateway -o jsonp
 echo "Current HTTPS NodePort: ${CURRENT_NODEPORT}"
 
 # Update the service to use the correct NodePort that matches the kind cluster port mapping
-kubectl patch svc istio-ingressgateway -n istio-system -p "{\"spec\":{\"ports\":[{\"name\":\"http2\",\"port\":80,\"targetPort\":8080,\"nodePort\":30080},{\"name\":\"https\",\"port\":443,\"targetPort\":8443,\"nodePort\":${NODEPORT_HTTPS}}]}}"
+kubectl patch svc istio-ingressgateway -n istio-system -p "{\"spec\":{\"ports\":[{\"name\":\"http2\",\"port\":80,\"targetPort\":8080,\"nodePort\":${NODEPORT_HTTP}},{\"name\":\"https\",\"port\":443,\"targetPort\":8443,\"nodePort\":${NODEPORT_HTTPS}}]}}"
+kubectl patch svc istio-ingressgateway -n istio-system -p '{"spec": {"type": "NodePort"}}'
 
 echo "Updated Istio Ingress Gateway to use NodePort ${NODEPORT_HTTPS}"
 
