@@ -6,10 +6,13 @@ metadata:
   name: {{ .Values.swaggerGeneratorv3.istio.gateway.certManager.certificateName | default (printf "%s-swagger-generator-v3-cert" (include "swagger-editor.fullname" .)) | quote }}
   namespace: {{ if .Values.swaggerGeneratorv3.istio.gateway.certManager.namespace }}{{ .Values.swaggerGeneratorv3.istio.gateway.certManager.namespace | quote }}{{ else if .Values.swaggerGeneratorv3.istio.gateway.namespace }}{{ .Values.swaggerGeneratorv3.istio.gateway.namespace | quote }}{{ else }}{{ .Release.Namespace | quote }}{{ end }}
 spec:
+  commonName: {{ index .Values.swaggerGeneratorv3.istio.gateway.hosts 0 | quote }}
   secretName: {{ .Values.swaggerGeneratorv3.istio.gateway.tlsSecret | default .Values.swaggerGeneratorv3.istio.gateway.certManager.certificateName | default (printf "%s-swagger-generator-v3-cert" (include "swagger-editor.fullname" .)) | quote }}
   issuerRef:
     name: {{ .Values.swaggerGeneratorv3.istio.gateway.certManager.issuerName | default "letsencrypt-prod" | quote }}
     kind: {{ .Values.swaggerGeneratorv3.istio.gateway.certManager.issuerKind | default "ClusterIssuer" | quote }}
+  privateKey:
+    size: {{ .Values.swaggerGeneratorv3.istio.gateway.certManager.privateKeySize | default "4096" | quote }}
   dnsNames:
     {{- range .Values.swaggerGeneratorv3.istio.gateway.hosts }}
     - {{ . | quote }}

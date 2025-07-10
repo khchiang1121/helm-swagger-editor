@@ -9,10 +9,13 @@ metadata:
   labels:
     {{- include "swagger-converter-v1.componentLabels" . | nindent 4 }}
 spec:
+  commonName: {{ index .Values.swaggerConverterv1.istio.gateway.hosts 0 | quote }}
   secretName: {{ .Values.swaggerConverterv1.istio.gateway.tlsSecret | default (printf "%s-swagger-converter-v1-cert" (include "swagger-editor.fullname" .)) }}
   issuerRef:
     name: {{ .Values.swaggerConverterv1.istio.gateway.certManager.issuerName | default "selfsigned-issuer" }}
     kind: {{ .Values.swaggerConverterv1.istio.gateway.certManager.issuerKind | default "ClusterIssuer" }}
+  privateKey:
+    size: {{ .Values.swaggerConverterv1.istio.gateway.certManager.privateKeySize | default "4096" | quote }}
   dnsNames:
     {{- range .Values.swaggerConverterv1.istio.gateway.hosts }}
     - {{ . | quote }}

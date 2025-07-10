@@ -136,6 +136,7 @@ swaggerEditor:
         # issuerName: "selfsigned-issuer"
         # issuerKind: "ClusterIssuer"
         # namespace: "istio-system"
+        # privateKeySize: 4096
     virtualService:
       hosts:
         - "swagger-editor.example.com"
@@ -274,6 +275,7 @@ swaggerConverterv1:
         # issuerName: "selfsigned-issuer"
         # issuerKind: "ClusterIssuer"
         # namespace: "istio-system"
+        # privateKeySize: 4096
     virtualService:
       hosts:
         - "swagger-converter-v1.example.com"
@@ -403,6 +405,7 @@ swaggerGeneratorv2:
         # issuerName: "selfsigned-issuer"
         # issuerKind: "ClusterIssuer"
         # namespace: "istio-system"
+        # privateKeySize: 4096
     virtualService:
       hosts:
         - "swagger-generator-v2.example.com"
@@ -535,6 +538,7 @@ swaggerGeneratorv3:
         # issuerName: "selfsigned-issuer"
         # issuerKind: "ClusterIssuer"
         # namespace: "istio-system"
+        # privateKeySize: 4096
     virtualService:
       hosts:
         - "swagger-generator-v3.example.com"
@@ -664,6 +668,7 @@ openapiGenerator:
         # issuerName: "selfsigned-issuer"
         # issuerKind: "ClusterIssuer"
         # namespace: "istio-system"
+        # privateKeySize: 4096
     virtualService:
       hosts:
         - "openapi-generator.example.com"

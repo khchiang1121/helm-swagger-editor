@@ -5,10 +5,13 @@ metadata:
   name: {{ .Values.openapiGenerator.istio.gateway.certManager.certificateName | default (printf "%s-openapi-generator-cert" (include "swagger-editor.fullname" .)) | quote }}
   namespace: {{ if .Values.openapiGenerator.istio.gateway.certManager.namespace }}{{ .Values.openapiGenerator.istio.gateway.certManager.namespace | quote }}{{ else if .Values.openapiGenerator.istio.gateway.namespace }}{{ .Values.openapiGenerator.istio.gateway.namespace | quote }}{{ else }}{{ .Release.Namespace | quote }}{{ end }}
 spec:
+  commonName: {{ index .Values.openapiGenerator.istio.gateway.hosts 0 | quote }}
   secretName: {{ .Values.openapiGenerator.istio.gateway.tlsSecret | default .Values.openapiGenerator.istio.gateway.certManager.certificateName | default (printf "%s-openapi-generator-cert" (include "swagger-editor.fullname" .)) | quote }}
   issuerRef:
     name: {{ .Values.openapiGenerator.istio.gateway.certManager.issuerName | default "letsencrypt-prod" | quote }}
     kind: {{ .Values.openapiGenerator.istio.gateway.certManager.issuerKind | default "ClusterIssuer" | quote }}
+  privateKey:
+    size: {{ .Values.openapiGenerator.istio.gateway.certManager.privateKeySize | default "4096" | quote }}
   dnsNames:
     {{- range .Values.openapiGenerator.istio.gateway.hosts }}
     - {{ . | quote }}
